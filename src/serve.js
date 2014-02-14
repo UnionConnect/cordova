@@ -17,13 +17,13 @@
     under the License.
 */
 var cordova_util = require('./util'),
+    crypto = require('crypto'),
     path = require('path'),
     shell = require('shelljs'),
     platforms     = require('../platforms'),
     config_parser = require('./config_parser'),
     hooker        = require('./hooker'),
     fs = require('fs'),
-    util = require('util'),
     http = require("http"),
     url = require("url"),
     mime = require("mime"),
@@ -45,7 +45,7 @@ function launchServer(projectRoot, port) {
         }
         function doRoot() {
             response.writeHead(200, {"Content-Type": "text/html"});
-            var config = new cordova_util.config_parser(path.join(projectRoot, "www/config.xml"));
+            var config = new cordova_util.config_parser(cordova_util.projectConfig(projectRoot));
             response.write("<html><head><title>"+config.name()+"</title></head><body>");
             response.write("<table border cellspacing=0><thead><caption><h3>Package Metadata</h3></caption></thead><tbody>");
             for (var c in {"name": true, "packageName": true, "version": true}) {
@@ -140,12 +140,12 @@ function launchServer(projectRoot, port) {
                     var readStream = fs.createReadStream(filePath);
 
                     var acceptEncoding = request.headers['accept-encoding'] || '';
-                    if (acceptEncoding.match(/\bdeflate\b/)) {
-                        respHeaders['content-encoding'] = 'deflate';
-                        readStream = readStream.pipe(zlib.createDeflate());
-                    } else if (acceptEncoding.match(/\bgzip\b/)) {
+                    if (acceptEncoding.match(/\bgzip\b/)) {
                         respHeaders['content-encoding'] = 'gzip';
                         readStream = readStream.pipe(zlib.createGzip());
+                    } else if (acceptEncoding.match(/\bdeflate\b/)) {
+                        respHeaders['content-encoding'] = 'deflate';
+                        readStream = readStream.pipe(zlib.createDeflate());
                     }
                     console.log('200 ' + request.url);
                     response.writeHead(200, respHeaders);
@@ -156,10 +156,30 @@ function launchServer(projectRoot, port) {
             }
         });
 
-    }).listen(port);
-
-    console.log("Static file server running on port " + port + " (i.e. http://localhost:" + port + ")\nCTRL + C to shut down");
+    }).listen(port, undefined, undefined, function (listeningEvent) {
+        console.log("Static file server running on port " + port + " (i.e. http://localhost:" + port + ")\nCTRL + C to shut down");
+    });
     return server;
+}
+
+function calculateMd5(fileName) {
+    var BUF_LENGTH = 64*1024,
+        buf = new Buffer(BUF_LENGTH),
+        bytesRead = BUF_LENGTH,
+        pos = 0,
+        fdr = fs.openSync(fileName, 'r');
+
+    try {
+        var md5sum = crypto.createHash('md5');
+        while (bytesRead === BUF_LENGTH) {
+            bytesRead = fs.readSync(fdr, buf, 0, BUF_LENGTH, pos);
+            pos += bytesRead;
+            md5sum.update(buf.slice(0, bytesRead));
+        }
+    } finally {
+        fs.closeSync(fdr);
+    }
+    return md5sum.digest('hex');
 }
 
 function processAddRequest(request, response, platformId, projectRoot) {
@@ -170,7 +190,7 @@ function processAddRequest(request, response, platformId, projectRoot) {
         'wwwPath': '/' + platformId + '/www',
         'wwwFileList': shell.find(wwwDir)
             .filter(function(a) { return !fs.statSync(a).isDirectory() && !/(^\.)|(\/\.)/.test(a) })
-            .map(function(a) { return a.slice(wwwDir.length); })
+            .map(function(a) { return {'path': a.slice(wwwDir.length), 'etag': '' + calculateMd5(a)}; })
     };
     console.log('200 ' + request.url);
     response.writeHead(200, {

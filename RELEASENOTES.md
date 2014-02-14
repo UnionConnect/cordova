@@ -18,7 +18,101 @@
 # under the License.
 #
 -->
-# Cordova-cli changelog
+# Cordova-cli Release Notes
+
+## 3.3.1-0.3.1 (Jan 31, 2014)
+* CB-4153 Rename --source and --link flags to --copy-from and --link-to
+
+## 3.3.1-0.3.0 (Jan 30, 2014)
+* Updated plugman dependency to 0.19.0
+* CB-5913 Fail more gracefully on Windows when symlinks fail.
+* Fix isWindows check in util.js to support win64
+* CB-5907 Make `cordova update` get version from platform's version script
+* CB-3612 Don't pass --device to "run" command by default.
+* CB-5493 lazy_load now downloads to a temp dir and then moves.
+* CB-5782 Hide stack trace for explicitly handled error conditions
+* CB-5590 Have config.xml version map to CFBundleShortVersionString instead of CFBundleVersion
+* CB-5299 Cache pbxproj to avoid re-parsing it for each plugin.
+* CB-5813 Fix missing quotes on update and ls commands
+* CB-5808 Fix lazy_load stripping off windows drive letters
+* Expose util.isCordova as cordova.findProjectRoot()
+* Allow lazy_load libs to work without an id and version for local paths.
+* Add an option to config.js to not write config.json during create.
+* Update node-xcode dependency to 0.6.6
+
+## 3.3.1-0.2.0 (Jan 15, 2014)
+* CB-5006 Add --searchpath to "plugin add" so that installing by ID will search local paths before hitting the registry.
+* CB-4153 Add --src & --link to cordova create.
+* CB-5687 Make cordova commands work when CWD is inside of a symlink'ed www/
+* CB-4910 Default config.xml to the root instead of within www/
+* CB-5764 Move hooks/ to top-level instead of under .cordova
+* CB-5763 Don't create .cordova/ by default
+* CB-4871 Reduced package size significantly.
+* CB-4976 Don't use ~/.cordova/lib for local directory
+* CB-5777 Fix "platform update" not updating cordova.js
+* CB-5728 Files in merges must remain intact when removing platform
+
+## 3.3.0-0.1.0
+* CB-5347 Handle dangling platform symlink in cordova platform add
+* Added deprecation notice about wp7
+* updated plugman version to 0.17.0
+* CB-5573 relies on stderr content and error codes to detect a problem with xcode installation.
+* CB-4382 Pass cli arguments to project-level hooks
+* CB-5362 blackberry parser: support local cordova-blackberry
+* CB-5345 Add pre_package event for windows8 parser.
+
+## 3.2.0-0.4.0
+
+* Make sure errors during prepare are reported
+* CB-5031 Add CLI help text for platform update and plugin search
+* CB-5298 Remove redundant requirements check for iOS and Android. The bin/create scripts check.
+* windows8. fixes version number parsing logic
+* CB-4472 Remove <preference> from template config.xml
+
+## 3.2.0-0.3.0
+
+* CB-5501 fix blackberry10 platform
+* [android] fixing failing android parser spec tests
+* [android] call out to platform check_req script
+
+## 3.2.0-0.2.0
+
+* CB-5485 fixed issue with use of cordova cli api
+
+## 3.2.0-0.1.0
+
+* add the output of the plugman results to the console
+* CB-5363 Improve config_json error reporting
+* CB-5364 config_parser - check for null element text
+* Fix issue not finding platform script when in subdir - check platforms which have subdir
+* CB-5377 serve: should only indicate listening when it is
+* CB-5368 Cordova serve deflate content breaks IE
+* Change cordova serve's project.json to include etags.
+* CB-5280 Update serve's help text to remove platform arguments
+* CB-5364 config_parser - handle duplicates with children and text when merging
+* CB-5320 Document avoiding sudo
+* CB-4400: cd to project root in most cordova commands.
+* CB-5063: Revert to copying cordova.js before user www dir
+* fix 3 failing tests for windows8 and wp8 and add assertions for wp7 too.
+* Adding instructions for installing on master.
+* CB-5063: Keep cordova.js in platform_www to avoid copying it from lib.
+* CB-5307: Remove references to Callback and Incubator
+* tests were failing attempting to match lib/dir and lib\\dir on windows
+* CB-5183 WP7/8 lib path is not correctly resolved by CLI (additional changes)
+* CB-5283 Improved cordova serve message to be more descriptive
+* [CB-4866] Execute hooks in ascending order of any leading numbers
+* [CB-5143] Locate the actual Android app .java file much more carefully.
+* Cleaning up wp7+8 parsers' use of promises. Fix tests.
+* serve: Fix doRoot() not being called & remove duplicated table.
+* serve: provide basic entry point
+* Code style (indentation)
+* Wait for the pre_package event to finish, or the update_csproj function might give unexpected results
+* Add pre_package event to wp8 project
+* readability + code quality in wp7+8 parsers
+* CB-5183 WP7/8 custom_path is not correctly resolved by CLI
+* [CB-4994] Update xcode dependency to handle Xcode 5 capabilities.
+* [CB-5220] "An error occurred" is missing an "A" ...
+
 
 ## 3.1.0-0.2.0
 
@@ -128,3 +222,4 @@ Important note: This version targets Cordova version 3.1.0-rc1.
 
 - Plugins are now installed serially across all installed platforms, rather than in parallel. This avoids race conditions in dependency installation. [CB-4184](https://issues.apache.org/jira/browse/CB-4184)
 - (WP8) All files from project www dir are now copied into the binary, not the top-level www. This means merges and plugin assets are correctly handled.
+
